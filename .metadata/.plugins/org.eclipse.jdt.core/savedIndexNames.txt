@@ -1,0 +1,20 @@
+INDEX VERSION 1.129+D:\Informatik\Java\EclipseWorkspace\LiRa\.metadata\.plugins\org.eclipse.jdt.core
+3778601464.index
+1102846136.index
+517093290.index
+1043098581.index
+2278286196.index
+1074673958.index
+4271705704.index
+3681743711.index
+2370855903.index
+584591307.index
+957297929.index
+3339895096.index
+2553766289.index
+1606117680.index
+3887861183.index
+1386616230.index
+2089866313.index
+2401290100.index
+524135653.index
