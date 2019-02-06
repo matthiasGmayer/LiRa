@@ -7,7 +7,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
 
-import entites.IScalable;
+import entities.IScalable;
 import renderer.Camera;
 import renderer.IRenderable;
 import settings.Graphic;
@@ -16,7 +16,7 @@ import tools.Tools;
 
 public class LightRay implements IRenderable, IScalable {
 
-	private static final float spaceing = 20f;
+	private static final float spacing = 20f;
 	private static final Image standardImage;
 	private static final float standardSize = 10;
 
@@ -48,7 +48,7 @@ public class LightRay implements IRenderable, IScalable {
 	@Override
 	public void render(Camera camera, Graphics g) {
 		Image image = this.image.getScaledCopy(size);
-		float spaceing = LightRay.spaceing * size;
+		float spaceing = LightRay.spacing * size;
 		// initialize
 		if (positions.size() > 1) {
 			LightPoint position = positions.get(0).copy();
@@ -57,6 +57,7 @@ public class LightRay implements IRenderable, IScalable {
 			int j = 2;
 
 			float covered = 0;
+			boolean last = false;
 			// draw until no Points are left
 			while (true) {
 				// interpolation of colors
@@ -84,16 +85,17 @@ public class LightRay implements IRenderable, IScalable {
 				float factor1 = Math.min(Math.min(covered / distance, distance), 1);
 				float factor2 = 1 - factor1;
 				position.set(Tools.getLineDivision(fromPosition, factor2, toPosition, factor1));
-
-				if (position.distance(toPosition) < spaceing + 0.001f) {
+				if (positions.size() <= j)
+					last = true;
+				if (last ? position.equals(toPosition) : position.distance(toPosition) < spaceing + 0.1f) {
 
 					covered -= distance;
 					fromPosition = toPosition;
 
+					//are there points left
 					if (positions.size() > j) {
 						toPosition = positions.get(j++).copy();
 					} else {
-						position = toPosition.copy();
 						image.draw(position.x - image.getWidth() / 2, position.y - image.getHeight() / 2, color);
 						break;
 					}

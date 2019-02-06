@@ -8,13 +8,13 @@ import org.newdawn.slick.Image;
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.geom.Vector2f;
 
-import entites.IPositionable;
-import entites.IScalable;
-import entites.IUpdatable;
+import entities.IPositionable;
+import entities.IScalable;
+import entities.IUpdatable;
 import renderer.Camera;
 import renderer.IRenderable;
 import settings.Actions;
-import settings.Controlls;
+import settings.Controls;
 import tools.Loader;
 import tools.Tools;
 import util.ButtonAction;
@@ -28,7 +28,7 @@ public class Button implements IPositionable, IScalable, IUpdatable, IRenderable
 	}
 
 	private ButtonAction onClick;
-	private Vector2f position;
+	protected Vector2f position;
 	private float size;
 	private Image pressedImage, releasedImage;
 	private boolean pressed;
@@ -95,8 +95,8 @@ public class Button implements IPositionable, IScalable, IUpdatable, IRenderable
 		boolean onButton = Tools.isPointInRectangle(v, position, getApparentSize(IRenderable.Direction.width),
 				getApparentSize(IRenderable.Direction.height), 0);
 
-		if (Actions.is(Controlls.leftMouse)) {
-			if (onButton)
+		if (Actions.is(Controls.leftMouse)) {
+			if (onButton) {
 				if (!pressed && !mousePressed) {
 					pressed = true;
 
@@ -107,10 +107,10 @@ public class Button implements IPositionable, IScalable, IUpdatable, IRenderable
 						time = 0;
 					}
 
-				} else {
-					onClick.onDeselect(this);
 				}
-
+			} else {
+				onClick.onDeselect(this);
+			}
 			mousePressed = true;
 		} else {
 			if (onButton && pressed) {

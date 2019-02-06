@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import entites.Activator;
-import entites.ColoredGlass;
-import entites.Goal;
-import entites.IActivatable;
-import entites.IControllable;
-import entites.ILoadable;
-import entites.LightEmitter;
-import entites.Mirror;
-import entites.Wall;
+import entities.Activator;
+import entities.ColoredGlass;
+import entities.Goal;
+import entities.IActivatable;
+import entities.IControllable;
+import entities.LightEmitter;
+import entities.Mirror;
+import entities.Wall;
 import tools.BidirectionalMap;
 import tools.CSV;
 
@@ -138,7 +137,7 @@ public class Level implements Iterable<ILoadable> {
 			}
 			i.save(csv, s);
 			if (l != null)
-				l.save(csv, "<" + s + ">");
+				l.save(csv, "(" + s + ")");
 
 		}
 		csv.write();
@@ -171,4 +170,14 @@ public class Level implements Iterable<ILoadable> {
 		return gameObjects.size();
 	}
 
+	public String getName() {
+		String[] s = path.split("\\\\");
+		return s[s.length - 1].split("\\.")[0];
+	}
+	@Override
+	public String toString() {
+		CSV csv = new CSV();
+		save(csv);
+		return csv.toString();
+	}
 }

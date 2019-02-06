@@ -3,12 +3,12 @@ package renderer;
 import java.util.HashMap;
 
 import effects.Glow;
-import entites.Activator;
-import entites.ColoredGlass;
-import entites.Goal;
-import entites.LightEmitter;
-import entites.Mirror;
-import entites.Wall;
+import entities.Activator;
+import entities.ColoredGlass;
+import entities.Goal;
+import entities.LightEmitter;
+import entities.Mirror;
+import entities.Wall;
 import gui.Button;
 import gui.CheckBox;
 import gui.ColorField;

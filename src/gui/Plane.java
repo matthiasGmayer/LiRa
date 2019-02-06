@@ -6,11 +6,11 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
-import entites.IUpdatable;
+import entities.IUpdatable;
 import renderer.Camera;
 import renderer.IRenderable;
 import settings.Actions;
-import settings.Controlls;
+import settings.Controls;
 import util.ButtonAction;
 
 public class Plane implements IRenderable, IUpdatable {
@@ -46,7 +46,7 @@ public class Plane implements IRenderable, IUpdatable {
 				&& v.y >= Math.min(position.y + dimensions.y, position.y)
 				&& v.y <= Math.max(position.y + dimensions.y, position.y);
 
-		if (Actions.is(Controlls.leftMouse)) {
+		if (Actions.is(Controls.leftMouse)) {
 			if (onButton)
 				if (!pressed && !mousePressed) {
 					pressed = true;

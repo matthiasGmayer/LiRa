@@ -1,4 +1,4 @@
-languageName, english
+languageName, English
 play, Play
 levelEditor, Level Editor 
 settings, Settings
@@ -30,3 +30,12 @@ position, Position
 rotation, Rotation
 size, Size
 strength, Strength
+cameraLeft, Camera Left
+cameraRight, Camera Right
+cameraUp, Camera Up
+cameraDown, Camera Down
+camera, Camera
+limitMovement, Limit Movement
+copy, Copy Object
+reset, Reset Progress
+won, You Won!

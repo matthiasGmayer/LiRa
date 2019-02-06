@@ -8,7 +8,7 @@ import renderer.Camera;
 import renderer.IRenderable;
 import util.ButtonAction;
 
-public class Text extends Button {
+public class Text extends Button{
 
 	public Text(ButtonAction onClick, String content, Color stringColor, Vector2f position, float size) {
 		super(onClick, content, stringColor, position, size, null, null);
@@ -26,16 +26,15 @@ public class Text extends Button {
 		this(new ButtonAction() {
 		}, content, fontColor, position, 1f);
 	}
+	
 
 	public Text(String content, Vector2f position) {
 		this(content, Color.white, position);
 	}
 
-	Graphics graphics;
 
 	@Override
 	public void render(Camera camera, Graphics g) {
-		graphics = g;
 		super.render(camera, g);
 	}
 
@@ -46,5 +45,4 @@ public class Text extends Button {
 		return super.font.getHeight(super.content);
 
 	}
-
 }

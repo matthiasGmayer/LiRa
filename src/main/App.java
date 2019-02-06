@@ -1,7 +1,5 @@
 package main;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,13 +14,14 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import gameStates.BasicState;
 import gameStates.Campaign;
-import gameStates.Controls;
+import gameStates.ControlSettings;
 import gameStates.CustomLevels;
 import gameStates.Edit;
 import gameStates.Game;
 import gameStates.GraphicSettings;
 import gameStates.Languages;
 import gameStates.Menu;
+import gameStates.OnlineLevels;
 import gameStates.Select;
 import gameStates.Settings;
 import gameStates.StateHandler;
@@ -35,12 +34,11 @@ public class App extends StateBasedGame {
 
 	public static AppGameContainer app;
 
-	public final static Language english = new Language("!english"), deutsch = new Language("!deutsch");
-	public static Language currentLanguage = new Language("!"+new CSV("!language").get(0, 0));
+	public static Language currentLanguage = new Language("!" + new CSV("!language").get(0, 0));
 
-	public static List<Class<? extends BasicState>> stateList = Arrays.asList(Campaign.class, Controls.class,
-			CustomLevels.class, Edit.class, Game.class, GraphicSettings.class, Menu.class, Select.class,
-			Settings.class, Languages.class);
+	public static List<Class<? extends BasicState>> stateList = Arrays.asList(Campaign.class, ControlSettings.class,
+			CustomLevels.class, Edit.class, Game.class, GraphicSettings.class, Menu.class, Select.class, Settings.class,
+			Languages.class, OnlineLevels.class);
 
 	public App(String name) {
 		super(name);
@@ -48,6 +46,7 @@ public class App extends StateBasedGame {
 
 	public static void main(String[] args) {
 
+		//if not in eclipse, print to file
 		if (System.getenv("inEclipse") == null) {
 			new File("logs").mkdirs();
 			File f = new File("logs/log.txt");
@@ -75,50 +74,18 @@ public class App extends StateBasedGame {
 	public final Class<? extends BasicState> startingClass = Menu.class;
 
 	public static boolean start() {
-		System.out.println("started");
-		CSV graphicSettings = new CSV("!graphics");
-		String firstStart = graphicSettings.get("firststart", 0, 1);
-		if (firstStart == null || Boolean.parseBoolean(firstStart)) {
-			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-			Graphic.width = (int) screenSize.getWidth();
-			Graphic.height = (int) screenSize.getHeight();
-			Graphic.fullscreen = true;
-
-			graphicSettings.set("resolution", 0, "resolution", Integer.toString(Graphic.width),
-					Integer.toString(Graphic.height));
-			graphicSettings.set("firststart", 0, 1, "false");
-			graphicSettings.set("fullscreen", 0, 1, "true");
-			graphicSettings.set("vSync", 0, 1, "true");
-			graphicSettings.set("multisamples", 0, 1, "16");
-			graphicSettings.set("antialiasing", 0, 1, "true");
-			graphicSettings.write();
-
-		} else {
-
-			Graphic.width = Integer.parseInt(graphicSettings.get("resolution", 0, 1));
-			Graphic.height = Integer.parseInt(graphicSettings.get("resolution", 0, 2));
-			Graphic.fullscreen = Boolean.parseBoolean(graphicSettings.get("fullscreen", 0, 1));
-		}
-
-		Graphic.vSync = Boolean.parseBoolean(graphicSettings.get("vsync", 0, 1));
-		Graphic.antialiasing = Boolean.parseBoolean(graphicSettings.get("antialiasing", 0, 1));
-		Graphic.multiSamples = Integer.parseInt(graphicSettings.get("multisamples", 0, 1));
-
 		try {
 			app = new AppGameContainer(new App("LiRa"));
-			System.out.println("app set");
+			String[] icons = { "resources/images/Menu/icon64.png", "resources/images/Menu/icon32.png" };
+			app.setIcons(icons);
 			try {
 				app.setDisplayMode(Graphic.width, Graphic.height, Graphic.fullscreen);
 			} catch (SlickException e) {
-				graphicSettings.set("firststart", 0, 1, "true");
-				graphicSettings.write();
 				return true;
 			}
 
 			app.setVSync(Graphic.vSync);
 			app.setMultiSample(Graphic.multiSamples);
-
-			System.out.println("about to start app");
 			app.setShowFPS(false);
 			app.start();
 
@@ -189,9 +156,19 @@ public class App extends StateBasedGame {
 
 		StateHandler.enterState(this, startingClass);
 		System.out.println("states inited");
+		System.out.println(StateHandler.getCurrentState());
 	}
 
 	public static void exit() {
 		app.exit();
+	}
+
+	public static void reinit() {
+		try {
+			StateHandler.clear();
+			app.reinit();
+		} catch (SlickException e) {
+			e.printStackTrace();
+		}
 	}
 }

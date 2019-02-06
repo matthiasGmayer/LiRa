@@ -1,0 +1,41 @@
+languageName, Esperanto
+play, Ludas
+levelEditor, Redaktilo
+settings, Agordojn
+quit, ^Cesu
+campaign, Kampanjo
+customlevels, Propraj Ludoj
+menu, Menuo
+controls, Kontroloj
+graphics, Grafikoj
+resolution, rezolucio
+fullcreen, Plena Ekrano
+apply, Apliki
+cancel, Nuligi
+open, Malfermiti
+close, Fermiti
+language, Lingvo
+movable, Movebla
+rotatable, Turnebla
+link, Ligili
+unlink, Malligili
+colors, Koloroj
+delete, Forigi
+save, Savi
+load, Malsavi
+yes, Jes
+no, Ne
+override, Nuligi
+position, Pozicio
+rotation, Rotacio
+size, Grandeco
+strength, Forto
+cameraLeft, ^Cambro Maldekstre
+cameraRight, ^Cambro Dekstre
+cameraUp, ^Cambro Supre
+cameraDown, ^Cambro Malsupre
+camera, ^Cambro
+limitMovement, Limi Movadon
+copy, Kopii Objekto
+reset, Nuligi Progreso
+won, Vi Venkis!

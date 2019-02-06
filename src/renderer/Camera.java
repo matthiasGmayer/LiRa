@@ -9,9 +9,9 @@ import java.util.List;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
-import entites.IUpdatable;
+import entities.IUpdatable;
 import settings.Actions;
-import settings.Controlls;
+import settings.Controls;
 import settings.Graphic;
 
 public class Camera implements IUpdatable, IRenderable {
@@ -37,16 +37,16 @@ public class Camera implements IUpdatable, IRenderable {
 	public void update(List<Object> gameObjects, Camera camera, int delta) {
 
 		float factor = (float) (delta / 2f / sqrt(size));
-		if (Actions.is(Controlls.cameraLeft)) {
+		if (Actions.is(Controls.cameraLeft)) {
 			targetPosition.x -= factor;
 		}
-		if (Actions.is(Controlls.cameraRight)) {
+		if (Actions.is(Controls.cameraRight)) {
 			targetPosition.x += factor;
 		}
-		if (Actions.is(Controlls.cameraUp)) {
+		if (Actions.is(Controls.cameraUp)) {
 			targetPosition.y -= factor;
 		}
-		if (Actions.is(Controlls.cameraDown)) {
+		if (Actions.is(Controls.cameraDown)) {
 			targetPosition.y += factor;
 		}
 
@@ -75,7 +75,7 @@ public class Camera implements IUpdatable, IRenderable {
 			targetPosition.add(previousMousePosition.copy().sub(targetScreenToWorldPoint(Actions.mousePosition)));
 		}
 
-		if (Actions.is(Controlls.middleMouse)) {
+		if (Actions.is(Controls.middleMouse)) {
 			if (middleMouseClicked) {
 				middleMouseClicked = false;
 				mouseClickPosition = targetScreenToWorldPoint(Actions.mousePosition);

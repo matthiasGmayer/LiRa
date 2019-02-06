@@ -8,7 +8,7 @@ public class Debug {
 
 	public static String[] debugs = new String[10];
 
-	private static final int spaceing = 10;
+	private static final int spacing = 10;
 	private static final int xPos = Graphic.width - 100;
 
 	public static boolean bool;
@@ -18,7 +18,7 @@ public class Debug {
 		int y = 1;
 		for (String s : debugs) {
 			if (s != null)
-				g.drawString(s, xPos, y++ * spaceing);
+				g.drawString(s, xPos, y++ * spacing);
 		}
 	}
 

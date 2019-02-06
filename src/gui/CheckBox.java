@@ -6,11 +6,11 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
-import entites.IUpdatable;
+import entities.IUpdatable;
 import renderer.Camera;
 import renderer.IRenderable;
 import settings.Actions;
-import settings.Controlls;
+import settings.Controls;
 import tools.Tools;
 import util.CheckAction;
 import util.UpdateAction;
@@ -44,6 +44,15 @@ public class CheckBox implements IUpdatable, IRenderable {
 		this(onCheck, onUpdate, position, false);
 	}
 
+	public CheckBox(CheckAction onCheck, Vector2f position) {
+		this(onCheck, new UpdateAction() {	
+			@Override
+			public void onUpdate(Object source, int delta) {
+				
+			}
+		}, position);
+	}
+
 	@Override
 	public void update(List<Object> gameObjects, Camera camera, int delta) {
 
@@ -53,7 +62,7 @@ public class CheckBox implements IUpdatable, IRenderable {
 		boolean onButton = Tools.isPointInRectangle(v, position, getApparentSize(IRenderable.Direction.width),
 				getApparentSize(IRenderable.Direction.height), 0);
 
-		if (Actions.is(Controlls.leftMouse)) {
+		if (Actions.is(Controls.leftMouse)) {
 			if (onButton)
 				if (!pressed && !mousePressed) {
 					pressed = true;

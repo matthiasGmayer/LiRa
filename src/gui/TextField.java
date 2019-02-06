@@ -9,19 +9,19 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.geom.Vector2f;
 
-import entites.IEntity;
-import entites.IScalable;
-import entites.IUpdatable;
+import entities.IPositionable;
+import entities.IScalable;
+import entities.IUpdatable;
 import renderer.Camera;
 import renderer.IRenderable;
 import settings.Actions;
-import settings.Controlls;
+import settings.Controls;
 import tools.Tools;
 import util.ChangeAction;
 import util.KeyListener;
 import util.UpdateAction;
 
-public class TextField implements IEntity, IScalable, IRenderable, IUpdatable, KeyListener {
+public class TextField implements IPositionable, IScalable, IRenderable, IUpdatable, KeyListener {
 
 	private static HashMap<String, String> contentMap = new HashMap<String, String>();
 	static {
@@ -31,53 +31,52 @@ public class TextField implements IEntity, IScalable, IRenderable, IUpdatable, K
 	}
 
 	private Vector2f position;
-	private float size, rotation;
+	private float size;
 	private String content;
 	private Font font = Fonts.defaultFont;
 	private Color fontColor;
 	private ChangeAction onChange;
 	private UpdateAction onUpdate;
 
-	private boolean selected;
+	private boolean selected, hide;
 
 	public TextField(ChangeAction onChange, UpdateAction onUpdate, String content, Color fontColor, Vector2f position,
-			int size) {
+			int size, boolean hide) {
 		super();
 		this.onChange = onChange;
 		this.onUpdate = onUpdate;
 		this.content = content;
 		this.fontColor = fontColor;
 		this.position = position;
-
-		// font = new UnicodeFont(new Font("Arial", 0, size));
-		// font.getEffects().add(new ColorEffect(java.awt.Color.white));
-		// font.addAsciiGlyphs();
-		// try {
-		// font.loadGlyphs();
-		// } catch (SlickException e) {
-		// e.printStackTrace();
-		// }
+		this.hide = hide;
+		this.size = size;
 		Actions.subscribe(this);
 	}
 
-	public TextField(ChangeAction onChange, String content, Color fontColor, Vector2f position, int size) {
+	public TextField(ChangeAction onChange, UpdateAction onUpdate, String content, Color fontColor, Vector2f position,
+			int size) {
+		this(onChange, onUpdate, content, fontColor, position, size, false);
+	}
+	
+	public TextField(ChangeAction onChange, String content, Color fontColor, Vector2f position, int size, boolean hide) {
 		this(onChange, new UpdateAction() {
 
 			@Override
 			public void onUpdate(Object source, int delta) {
 
 			}
-		}, content, fontColor, position, size);
+		}, content, fontColor, position, size, hide);
 	}
 
-	public TextField(String content, Color fontColor, Vector2f position, int size) {
+	public TextField(String content, Color fontColor, Vector2f position, int size, boolean hide) {
 		this(new ChangeAction() {
 			@Override
 			public void onChange(Object source) {
 
 			}
-		}, content, fontColor, position, size);
+		}, content, fontColor, position, size, hide);
 	}
+
 
 	@Override
 	public void update(List<Object> gameObjects, Camera camera, int delta) {
@@ -90,9 +89,9 @@ public class TextField implements IEntity, IScalable, IRenderable, IUpdatable, K
 		}
 		Vector2f v = camera.screenToWorldPoint(Actions.mousePosition);
 		boolean onButton = Tools.isPointInRectangle(v, position, getApparentSize(IRenderable.Direction.width),
-				getApparentSize(IRenderable.Direction.height), rotation);
+				getApparentSize(IRenderable.Direction.height), 0);
 
-		if (Actions.is(Controlls.leftMouse)) {
+		if (Actions.is(Controls.leftMouse)) {
 			if (onButton) {
 				selected = true;
 			} else {
@@ -140,13 +139,25 @@ public class TextField implements IEntity, IScalable, IRenderable, IUpdatable, K
 		float width = getApparentSize(IRenderable.Direction.width);
 		float height = getApparentSize(IRenderable.Direction.height);
 		g.setColor(fontColor);
+		float presize = g.getLineWidth();
+		g.setLineWidth(size);
 		g.drawRect(position.x - width / 2, position.y - height / 2, width + 10, height);
-		// g.setFont(font);
+		g.setFont(font);
 		g.setColor(fontColor);
-		g.drawString(content, position.x - width / 2, position.y - height / 2);
+		
+		String text = "";
+		if(hide)
+			for (int i = 0; i < content.length(); i++) {
+				text += "*";
+			}
+		else
+			text = content;
+		
+		g.drawString(text, position.x - width / 2, position.y - height / 2);
 		if (selected && blink) {
 			g.fillRect(position.x + width / 2 + 5, position.y - height / 2, 5, height);
 		}
+		g.setLineWidth(presize);
 	}
 
 	@Override
@@ -177,15 +188,6 @@ public class TextField implements IEntity, IScalable, IRenderable, IUpdatable, K
 		this.size = size;
 	}
 
-	@Override
-	public float getRotation() {
-		return rotation;
-	}
-
-	@Override
-	public void setRotation(float rotation) {
-		this.rotation = rotation;
-	}
 
 	public String getContent() {
 		return content;
@@ -197,6 +199,9 @@ public class TextField implements IEntity, IScalable, IRenderable, IUpdatable, K
 
 	public boolean isSelected() {
 		return selected;
+	}
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 	}
 
 }

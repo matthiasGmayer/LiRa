@@ -8,7 +8,7 @@ import org.newdawn.slick.font.effects.ColorEffect;
 
 @SuppressWarnings("unchecked")
 public class Fonts {
-	static UnicodeFont defaultFont;
+	public static UnicodeFont defaultFont;
 	static {
 		defaultFont = new UnicodeFont(new Font("Arial", 0, 20));
 		defaultFont.getEffects().add(new ColorEffect(java.awt.Color.white));

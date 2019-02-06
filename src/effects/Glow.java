@@ -5,9 +5,9 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Vector2f;
 
-import entites.IControllable;
-import entites.IEntity;
-import entites.IScalable;
+import entities.IControllable;
+import entities.IEntity;
+import entities.IScalable;
 import renderer.Camera;
 import renderer.IRenderable;
 import tools.Loader;

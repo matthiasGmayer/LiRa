@@ -27,7 +27,7 @@ public class GraphicSettings extends BasicState {
 	int textX = -100;
 	int x = 100;
 	int y = -4;
-	int spaceing = 50;
+	int spacing = 50;
 
 	private boolean vsync, antialiasing, fullscreen;
 	private int width, height, multiSamples;
@@ -36,29 +36,37 @@ public class GraphicSettings extends BasicState {
 			Loader.loadImage("!Menu/arrowButtonReleasedLeft"), Loader.loadImage("!Menu/arrowButtonPressedRight"),
 			Loader.loadImage("!Menu/arrowButtonReleasedRight") };
 
-	private List<String> resolutions = Arrays.asList("1080x720", "1280x800", "1280x1024", "1366x768", "1440x900",
-			"1600x900", "1920x1080");
+	private List<String> resolutions;
 
 	Text resolution;
 	Text multisample;
 
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
+		
+//		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+//		int width = gd.getDisplayMode().getWidth();
+//		int height = gd.getDisplayMode().getHeight();
+//		
+//		String res = Integer.toString(width) +"x" + Integer.toString(height);
+		resolutions = Arrays.asList("1024x768","1080x720", "1280x800", "1280x1024", "1366x768", "1440x900",
+				"1600x900", "1920x1080");
+		
 		create(new Panel(
 
-				new Text("VSync", Color.black, new Vector2f(textX, y * spaceing)),
+				new Text("VSync", Color.black, new Vector2f(textX, y * spacing)),
 				new CheckBox(b -> vsync = b, (source, delta) -> {
-				}, new Vector2f(x, y++ * spaceing), Graphic.vSync),
+				}, new Vector2f(x, y++ * spacing), Graphic.vSync),
 
-				new Text("AntiAliasing", Color.black, new Vector2f(textX, y * spaceing)),
+				new Text("AntiAliasing", Color.black, new Vector2f(textX, y * spacing)),
 				new CheckBox(b -> antialiasing = b, (source, delta) -> {
-				}, new Vector2f(x, y++ * spaceing), Graphic.antialiasing),
+				}, new Vector2f(x, y++ * spacing), Graphic.antialiasing),
 
-				new Text(getLanguage().fullcreen, Color.black, new Vector2f(textX, y * spaceing)),
+				new Text(getLanguage().fullcreen, Color.black, new Vector2f(textX, y * spacing)),
 				new CheckBox(b -> fullscreen = b, (source, delta) -> {
-				}, new Vector2f(x, y++ * spaceing), Graphic.fullscreen),
+				}, new Vector2f(x, y++ * spacing), Graphic.fullscreen),
 
-				new Text(getLanguage().resolution, Color.black, new Vector2f(textX, y * spaceing)),
+				new Text(getLanguage().resolution, Color.black, new Vector2f(textX, y * spacing)),
 
 				new Button(new ButtonAction() {
 					@Override
@@ -66,7 +74,7 @@ public class GraphicSettings extends BasicState {
 						resolution.setContent(nextResolution(i -> --i));
 						ButtonAction.super.onRelease(source);
 					}
-				}, "", Color.white, new Vector2f(x - 100, y * spaceing), 0.5f, arrowButtons[0], arrowButtons[1]),
+				}, "", Color.white, new Vector2f(x - 100, y * spacing), 0.5f, arrowButtons[0], arrowButtons[1]),
 
 				new Button(new ButtonAction() {
 					@Override
@@ -74,11 +82,11 @@ public class GraphicSettings extends BasicState {
 						resolution.setContent(nextResolution(i -> ++i));
 						ButtonAction.super.onRelease(source);
 					}
-				}, "", Color.white, new Vector2f(x + 100, y * spaceing), 0.5f, arrowButtons[2], arrowButtons[3]),
+				}, "", Color.white, new Vector2f(x + 100, y * spacing), 0.5f, arrowButtons[2], arrowButtons[3]),
 
-				resolution = new Text(nextResolution(i -> i), Color.black, new Vector2f(x, y++ * spaceing)),
+				resolution = new Text(nextResolution(i -> i), Color.black, new Vector2f(x, y++ * spacing)),
 
-				new Text("Multi Samples", Color.black, new Vector2f(textX, ++y * spaceing)),
+				new Text("Multi Samples", Color.black, new Vector2f(textX, ++y * spacing)),
 
 				new Button(new ButtonAction() {
 					@Override
@@ -86,7 +94,7 @@ public class GraphicSettings extends BasicState {
 						multisample.setContent(Integer.toString(nextMultiSample(i -> i - 2)));
 						ButtonAction.super.onRelease(source);
 					}
-				}, "", Color.white, new Vector2f(x - 100, y * spaceing), 0.5f, arrowButtons[0], arrowButtons[1]),
+				}, "", Color.white, new Vector2f(x - 100, y * spacing), 0.5f, arrowButtons[0], arrowButtons[1]),
 
 				new Button(new ButtonAction() {
 					@Override
@@ -94,10 +102,10 @@ public class GraphicSettings extends BasicState {
 						multisample.setContent(Integer.toString(nextMultiSample(i -> i + 2)));
 						ButtonAction.super.onRelease(source);
 					}
-				}, "", Color.white, new Vector2f(x + 100, y * spaceing), 0.5f, arrowButtons[2], arrowButtons[3]),
+				}, "", Color.white, new Vector2f(x + 100, y * spacing), 0.5f, arrowButtons[2], arrowButtons[3]),
 
 				multisample = new Text(Integer.toString(Graphic.multiSamples), Color.black,
-						new Vector2f(x, y++ * spaceing)),
+						new Vector2f(x, y++ * spacing)),
 
 				new Button(new ButtonAction() {
 					@Override
@@ -151,7 +159,7 @@ public class GraphicSettings extends BasicState {
 		App.app.setVSync(vsync);
 		try {
 			App.app.setDisplayMode(width, height, fullscreen);
-			App.app.reinit();
+			App.reinit();
 		} catch (SlickException e) {
 
 			e.printStackTrace();

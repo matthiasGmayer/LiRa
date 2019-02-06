@@ -7,16 +7,17 @@ import org.newdawn.slick.geom.Vector2f;
 public class Tools {
 
 	public static Vector2f copyIfPresent(Vector2f v) {
-		if(v == null)
+		if (v == null)
 			return null;
 		return v.copy();
 	}
+
 	public static Float copyIfPresent(Float f) {
-		if(f == null)
+		if (f == null)
 			return null;
 		return Float.valueOf(f);
 	}
-	
+
 	// get intersection by mathematical function
 	public static Vector2f getIntersectionPoint(Vector2f v1, Vector2f v2, Vector2f v3, Vector2f v4) {
 

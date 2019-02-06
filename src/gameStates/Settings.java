@@ -8,6 +8,8 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import gui.Button;
 import gui.Panel;
+import levels.LevelProgress;
+import main.App;
 import renderer.IRenderable.Direction;
 import util.ButtonAction;
 
@@ -16,9 +18,18 @@ public class Settings extends BasicState {
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		int buttonHeight = (int) new Button(null, null, null).getApparentSize(Direction.height);
-		int y = -1;
+		float y = -2;
 		int spaceing = buttonHeight + 10;
 		create(new Panel(
+
+				new Button(new ButtonAction() {
+					@Override
+					public void onRelease(Object source) {
+						LevelProgress.reset();
+						App.reinit();
+						ButtonAction.super.onRelease(source);
+					}
+				}, getLanguage().reset, Color.black, new Vector2f(0, y++ * spaceing)),
 
 				new Button(new ButtonAction() {
 					@Override
@@ -27,11 +38,11 @@ public class Settings extends BasicState {
 						ButtonAction.super.onRelease(source);
 					}
 				}, getLanguage().language, Color.black, new Vector2f(0, y++ * spaceing)),
-				
+
 				new Button(new ButtonAction() {
 					@Override
 					public void onRelease(Object source) {
-						enterState(sbg, Controls.class);
+						enterState(sbg, ControlSettings.class);
 						ButtonAction.super.onRelease(source);
 					}
 				}, getLanguage().controls, Color.black, new Vector2f(0, y++ * spaceing)),

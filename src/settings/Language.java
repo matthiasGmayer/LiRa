@@ -8,7 +8,8 @@ public class Language {
 
 	public final String play, levelEditor, settings, quit, campaign, customlevels, menu, controls, graphics, resolution,
 			fullcreen, apply, cancel, open, close, language, movable, rotatable, link, unlink, strength, rotation,
-			position, size, colors, delete, load, save, override, yes, no, languageName;
+			position, size, colors, delete, load, save, override, yes, no, languageName, cameraLeft, cameraRight,
+			cameraUp, cameraDown, camera, limitMovement, copy, reset, won;
 
 	public Language(String dir) {
 		this(new CSV(dir.replace("!", standardDirectory)));
@@ -47,6 +48,15 @@ public class Language {
 		save = csv.get("save", 0, 1);
 		size = csv.get("size", 0, 1);
 		strength = csv.get("strength", 0, 1);
+		cameraLeft = csv.get("cameraLeft", 0, 1);
+		cameraDown = csv.get("cameraDown", 0, 1);
+		cameraRight = csv.get("cameraRight", 0, 1);
+		cameraUp = csv.get("cameraUp", 0, 1);
+		camera = csv.get("camera", 0, 1);
+		limitMovement = csv.get("limitMovement", 0, 1);
+		copy = csv.get("copy", 0, 1);
+		reset = csv.get("reset", 0, 1);
+		won = csv.get("won", 0, 1);
 
 	}
 

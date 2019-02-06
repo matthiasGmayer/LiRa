@@ -7,8 +7,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
+
 
 public class CSV implements Iterable<ArrayList<String>> {
 
@@ -21,10 +23,22 @@ public class CSV implements Iterable<ArrayList<String>> {
 	public CSV(File file) {
 		path = file.getPath();
 		try {
+			if (!file.exists()) {
+				file.getParentFile().mkdirs();
+				file.createNewFile();
+			}
 			BufferedReader b = new BufferedReader(new FileReader(file));
 			read(b);
 			b.close();
 		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public CSV(BufferedReader b) {
+		try {
+			read(b);
+			b.close();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -73,13 +87,20 @@ public class CSV implements Iterable<ArrayList<String>> {
 	}
 
 	public void write(File file) {
-
 		try {
 			if (!file.exists()) {
 				file.getParentFile().mkdirs();
 				file.createNewFile();
 			}
 			BufferedWriter b = new BufferedWriter(new FileWriter(file));
+			write(b);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public void write(BufferedWriter b) {
+
+		try {
 			for (ArrayList<String> l : data) {
 
 				boolean first = true;
@@ -91,7 +112,6 @@ public class CSV implements Iterable<ArrayList<String>> {
 						b.write(", " + s);
 					}
 				}
-
 				b.newLine();
 			}
 			b.close();
@@ -229,7 +249,7 @@ public class CSV implements Iterable<ArrayList<String>> {
 	public void add(int row, String s) {
 		ArrayList<String> l = get(row);
 		if (l == null)
-			l = new ArrayList<String>();
+			data.add(l = new ArrayList<String>());
 		l.add(s);
 	}
 
@@ -266,5 +286,11 @@ public class CSV implements Iterable<ArrayList<String>> {
 	@Override
 	public Iterator<ArrayList<String>> iterator() {
 		return data.iterator();
+	}
+	@Override
+	public String toString() {
+		StringWriter s = new StringWriter();
+		write(new BufferedWriter(s));
+		return s.toString();
 	}
 }

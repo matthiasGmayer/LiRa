@@ -6,23 +6,27 @@ import java.util.List;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
 import gui.Button;
 import gui.Panel;
+import gui.Picture;
 import gui.Text;
 import levels.Level;
+import levels.LevelProgress;
 import settings.Graphic;
 import tools.BidirectionalMap;
 import tools.CSV;
+import tools.Loader;
 import util.ButtonAction;
 
 public class CustomLevels extends BasicState {
 
 	Panel p;
-	List<Text> levelTexts = new ArrayList<>();
+	List<Object> toRemoveTexts = new ArrayList<>();
 	Text selectedText;
 
 	@Override
@@ -48,14 +52,18 @@ public class CustomLevels extends BasicState {
 		super.enter(container, game);
 	}
 
+	private static Image done = Loader.loadImage("!Menu/done"), undone = Loader.loadImage("!Menu/undone");
+
 	private void loadLevels(StateBasedGame sbg) {
 
-		p.remove(levelTexts);
+		p.remove(toRemoveTexts);
+		toRemoveTexts.clear();
 
 		File file = new File("levels");
 		File[] files = file.listFiles();
 		int i = 1;
 		BidirectionalMap<Level, Text> levelMap = new BidirectionalMap<Level, Text>();
+		List<Picture> pictureList = new ArrayList<>();
 		for (File file2 : files) {
 
 			Text text = new Text(new ButtonAction() {
@@ -83,11 +91,18 @@ public class CustomLevels extends BasicState {
 				}
 
 			}, file2.getName().split("\\.")[0], Color.black, new Vector2f(0, i * 40 - Graphic.height / 2 + 20f));
-			levelTexts.add(text);
-			levelMap.put(new Level(new CSV(file2)), text);
+			Level l;
+			levelMap.put(l = new Level(new CSV(file2)), text);
+			Image image = LevelProgress.isLevelDone(l) ? done : undone;
+			Picture p;
+			pictureList.add(p = new Picture(new Vector2f(200, i * 40 - Graphic.height / 2 + 20f), 0.3f, image));
+			toRemoveTexts.add(text);
+			toRemoveTexts.add(p);
 			i++;
 		}
 		p.add(levelMap.getValueSet());
+		p.add(pictureList);
+
 	}
 
 }

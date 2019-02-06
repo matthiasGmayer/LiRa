@@ -9,9 +9,9 @@ import java.util.List;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
-import entites.IPositionable;
-import entites.IScalable;
-import entites.IUpdatable;
+import entities.IPositionable;
+import entities.IScalable;
+import entities.IUpdatable;
 import renderer.Camera;
 import renderer.IRenderable;
 
@@ -27,7 +27,6 @@ public class Panel implements IRenderable, IUpdatable, IPositionable, IScalable 
 			getPosition().y = getTargetPosition().y
 					- (getTargetPosition().y - getPosition().y) * (float) pow(super.positionInterpolationFactor, delta);
 		}
-
 	};
 
 	public Panel(ArrayList<IRenderable> objects) {
@@ -40,6 +39,12 @@ public class Panel implements IRenderable, IUpdatable, IPositionable, IScalable 
 		for (IRenderable iRenderable : objects) {
 			add(iRenderable);
 		}
+	}
+	
+	public Panel initPosition(Vector2f v) {
+		setPosition(v);
+		setTargetPosition(v);
+		return this;
 	}
 
 	public synchronized void add(Iterable<? extends IRenderable> objects) {
@@ -101,10 +106,11 @@ public class Panel implements IRenderable, IUpdatable, IPositionable, IScalable 
 		}
 		toAdd.clear();
 		for (Object o : toRemove) {
+			if (o instanceof TextField)
+				((TextField) o).setSelected(false);
 			objects.remove(o);
 		}
 		toRemove.clear();
-
 		for (IRenderable r : objects) {
 			if (r instanceof IUpdatable) {
 				((IUpdatable) r).update(gameObjects, this.camera, delta);
@@ -149,7 +155,9 @@ public class Panel implements IRenderable, IUpdatable, IPositionable, IScalable 
 	}
 
 	public void clear() {
-		objects.clear();
+		for (IRenderable r : objects) {
+			remove(r);
+		}
 	}
 
 }

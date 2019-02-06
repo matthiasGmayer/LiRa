@@ -13,6 +13,8 @@ import util.ButtonAction;
 
 public class Select extends BasicState {
 
+	Button online;
+	
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		int buttonHeight = (int) new Button(null, null, null).getApparentSize(Direction.height);
@@ -20,6 +22,14 @@ public class Select extends BasicState {
 		int spaceing = buttonHeight + 10;
 		create(new Panel(
 
+				online = new Button(new ButtonAction() {
+					@Override
+					public void onRelease(Object source) {
+						enterState(sbg, OnlineLevels.class);
+						ButtonAction.super.onRelease(source);
+					}
+				}, "Online", Color.black, new Vector2f(0, y++ * spaceing)),
+				
 				new Button(new ButtonAction() {
 					@Override
 					public void onRelease(Object source) {
@@ -43,10 +53,9 @@ public class Select extends BasicState {
 						ButtonAction.super.onRelease(source);
 					}
 				}, getLanguage().menu, Color.black, new Vector2f(0, y++ * spaceing))
-
+				
 		));
 
 		super.init(gc, sbg);
 	}
-
 }

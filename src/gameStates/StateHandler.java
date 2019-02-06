@@ -5,8 +5,7 @@ import java.util.List;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.state.StateBasedGame;
-
-import effects.FadeTransition;
+import org.newdawn.slick.state.transition.FadeOutTransition;
 
 public class StateHandler {
 
@@ -24,10 +23,9 @@ public class StateHandler {
 
 	public static void enterState(StateBasedGame sbg, Class<? extends BasicState> c) {
 		for (BasicState s : states) {
-			if (c.isInstance(s)) {
-				System.out.println("Entering " + c);
+			if (s.getClass() == c) {
 				currentState = s;
-				sbg.enterState(getID(s), new FadeTransition(transitionTime, Color.black, false), null);
+				sbg.enterState(getID(s), new FadeOutTransition(Color.black, transitionTime), null);
 			}
 		}
 	}
@@ -42,6 +40,19 @@ public class StateHandler {
 
 	public static boolean isInGame() {
 		return currentState instanceof Game;
+	}
+
+	public static <T extends BasicState> T getState(Class<T> c) {
+		for (BasicState s : states) {
+			if (s.getClass() == c)
+				return c.cast(s);
+		}
+		return null;
+	}
+
+	public static void clear() {
+		states.clear();
+		currentState = null;
 	}
 
 }

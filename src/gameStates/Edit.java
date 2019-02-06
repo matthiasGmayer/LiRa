@@ -13,21 +13,21 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
-import entites.Activator;
-import entites.ColoredGlass;
-import entites.Goal;
-import entites.IActivatable;
-import entites.IColorable;
-import entites.IControllable;
-import entites.ILinkable;
-import entites.ILoadable;
-import entites.IPositionable;
-import entites.IResizable;
-import entites.IRotatable;
-import entites.IScalable;
-import entites.LightEmitter;
-import entites.Mirror;
-import entites.Wall;
+import connection.Connections;
+import entities.Activator;
+import entities.ColoredGlass;
+import entities.Goal;
+import entities.IActivatable;
+import entities.IColorable;
+import entities.IControllable;
+import entities.ILinkable;
+import entities.IPositionable;
+import entities.IResizable;
+import entities.IRotatable;
+import entities.IScalable;
+import entities.LightEmitter;
+import entities.Mirror;
+import entities.Wall;
 import gui.Button;
 import gui.CheckBox;
 import gui.ColorField;
@@ -36,10 +36,12 @@ import gui.Panel;
 import gui.Plane;
 import gui.Text;
 import gui.TextField;
+import levels.ILoadable;
 import levels.Level;
 import renderer.IRenderable;
 import renderer.IRenderable.Direction;
 import settings.Actions;
+import settings.Controls;
 import settings.Graphic;
 import tools.BidirectionalMap;
 import tools.CSV;
@@ -51,7 +53,7 @@ import util.UpdateAction;
 
 public class Edit extends Game {
 
-	Button b, b1, b2;
+	Button b, b1, b2, UploadButton;
 	Text t;
 	Panel directoryPanel, inspectorPanel, creatorPanel;
 	Level currentLevel;
@@ -97,7 +99,7 @@ public class Edit extends Game {
 				new Plane(new Vector2f(0, 0), new Vector2f(Graphic.width, Graphic.height), new Color(1, 1, 1, 0.5f)),
 
 				loadTextField = new TextField("", Color.black, new Vector2f(Graphic.width / 2, Graphic.height - 100f),
-						20),
+						1, false),
 
 				new Button(new ButtonAction() {
 					@Override
@@ -163,16 +165,25 @@ public class Edit extends Game {
 						}
 					}
 				}, getLanguage().delete, Color.black, new Vector2f(Graphic.width - 100f, 250)),
-
+				
+				UploadButton = new Button(new ButtonAction() {
+					@Override
+					public void onRelease(Object source) {
+						if(currentLevel != null && currentLevel.size() > 0)
+							Connections.uploadLevel(currentLevel, loadTextField.getContent());
+						ButtonAction.super.onRelease(source);
+					}
+				}, "Upload", Color.black, new Vector2f(Graphic.width - 100f, 350)),
+						
 				new Button(new ButtonAction() {
 					@Override
 					public void onRelease(Object source) {
 						enterState(sbg, Menu.class);
 						ButtonAction.super.onRelease(source);
 					}
-				}, getLanguage().menu, Color.black, new Vector2f(Graphic.width - 100f, 350)
-
-				));
+				}, getLanguage().menu, Color.black, new Vector2f(Graphic.width - 100f, 450))
+				
+				);
 
 		loadLevels();
 
@@ -225,8 +236,9 @@ public class Edit extends Game {
 				clear();
 				ButtonAction.super.onRelease(source);
 			}
-		}, getLanguage().delete, Color.black, new Vector2f(0, 0), 0.3f));
-		b5.setPosition(new Vector2f(b5.getApparentSize(Direction.width), b5.getApparentSize(Direction.height) / 2 - Graphic.height / 2));
+		}, getLanguage().delete, Color.black, new Vector2f(0, 0), 0.5f));
+		b5.setPosition(new Vector2f(b5.getApparentSize(Direction.width),
+				b5.getApparentSize(Direction.height) / 2 - Graphic.height / 2));
 	}
 
 	ArrayList<ButtonAction> createActions = new ArrayList<ButtonAction>();
@@ -264,6 +276,7 @@ public class Edit extends Game {
 		dirIsOpen = false;
 		directoryPanel.setPosition(new Vector2f(Graphic.width / 2, -Graphic.height / 2));
 		directoryPanel.setTargetPosition(new Vector2f(Graphic.width / 2, -Graphic.height / 2));
+		UploadButton.setPosition(new Vector2f(Graphic.width + (Connections.loggedIn() ? -100 : 100), 350));
 		super.enter(container, game);
 	}
 
@@ -274,10 +287,9 @@ public class Edit extends Game {
 			if (isLinking) {
 				linkable.link(c);
 			} else {
-				if (Actions.isPressed(Input.KEY_LSHIFT)) {
+				if (Actions.is(Controls.copy)) {
 					isCreating = true;
 					creatingObject = create(c.clone());
-				} else if (!Actions.isPressed(Input.KEY_LCONTROL)) {
 				}
 				super.select(c);
 			}
@@ -287,6 +299,10 @@ public class Edit extends Game {
 
 	@Override
 	public void keyPressed(int key, char c) {
+
+		if (!dirIsOpen && Actions.is(Controls.link))
+			isLinking = true;
+
 		if (!inInspector && !dirIsOpen && !textFieldSelected && key <= createActions.size() + 1 && key <= 10
 				&& key > 1) {
 			int i = key - 2;
@@ -294,7 +310,7 @@ public class Edit extends Game {
 				remove(creatingObject);
 			}
 			createActions.get(i).onRelease(this);
-		} else if (key == Input.KEY_DELETE) {
+		} else if (Actions.is(Controls.delete)) {
 			if (dirIsOpen) {
 				if (deleteLevelAction != null) {
 					deleteLevelAction.onRelease(this);
@@ -320,7 +336,7 @@ public class Edit extends Game {
 			isCreating = false;
 		}
 
-		if (Actions.isPressed(Input.KEY_LCONTROL)) {
+		if (Actions.is(Controls.limitMovement)) {
 			if (button == 0) {
 				isRestricting1 = true;
 			} else if (button == 1) {
@@ -514,7 +530,7 @@ public class Edit extends Game {
 			isUnlinking = false;
 			linkable.unlink();
 		}
-		if (saveLevel) {
+		if (saveLevel && !loadTextField.getContent().equals("")) {
 			new Level(idList, "!" + loadTextField.getContent());
 			loadLevels();
 			saveLevel = false;
@@ -589,7 +605,7 @@ public class Edit extends Game {
 	ILinkable linkable;
 	ColoredGlass coloredGlass;
 
-	private final int spaceing = 17;
+	private final int spacing = 17;
 
 	public void getInspector(IControllable c) {
 
@@ -602,7 +618,7 @@ public class Edit extends Game {
 		if (c instanceof IPositionable) {
 
 			positionable = (IPositionable) c;
-			addToInspector((new Text(getLanguage().position, Color.black, new Vector2f(-100, y++ * 2 * spaceing))),
+			addToInspector((new Text(getLanguage().position, Color.black, new Vector2f(-100, y++ * 2 * spacing))),
 					new TextField(new ChangeAction() {
 						@Override
 						public void onChange(Object source) {
@@ -621,7 +637,7 @@ public class Edit extends Game {
 								((TextField) source).setContent(dataToString(positionable.getPosition().x));
 							}
 						}
-					}, "", Color.black, new Vector2f(-150, y * 2 * spaceing - spaceing / 2f), 20),
+					}, "", Color.black, new Vector2f(-150, y * 2 * spacing - spacing / 2f), 1),
 
 					new TextField(new ChangeAction() {
 						@Override
@@ -641,11 +657,11 @@ public class Edit extends Game {
 								((TextField) source).setContent(dataToString(positionable.getPosition().y));
 							}
 						}
-					}, "", Color.black, new Vector2f(-75, y++ * 2 * spaceing - spaceing / 2f), 20));
+					}, "", Color.black, new Vector2f(-75, y++ * 2 * spacing - spacing / 2f), 1));
 		}
 		if (c instanceof IRotatable) {
 			rotatable = (IRotatable) c;
-			addToInspector(new Text(getLanguage().rotation, Color.black, new Vector2f(-100, y++ * 2 * spaceing)),
+			addToInspector(new Text(getLanguage().rotation, Color.black, new Vector2f(-100, y++ * 2 * spacing)),
 					new TextField(new ChangeAction() {
 
 						@Override
@@ -666,11 +682,11 @@ public class Edit extends Game {
 								((TextField) source).setContent(dataToString(Math.toDegrees(rotatable.getRotation())));
 
 						}
-					}, "", Color.black, new Vector2f(-100, y++ * 2 * spaceing - spaceing / 2f), 20));
+					}, "", Color.black, new Vector2f(-100, y++ * 2 * spacing - spacing / 2f), 1));
 
 		}
 
-		addToInspector(new Text(getLanguage().size, Color.black, new Vector2f(-100, y++ * 2 * spaceing)));
+		addToInspector(new Text(getLanguage().size, Color.black, new Vector2f(-100, y++ * 2 * spacing)));
 		if (c instanceof IScalable) {
 			scalable = (IScalable) c;
 			addToInspector(new TextField(new ChangeAction() {
@@ -691,7 +707,7 @@ public class Edit extends Game {
 						((TextField) source).setContent(dataToString(scalable.getScale(), 2));
 					}
 				}
-			}, "", Color.black, new Vector2f(-100, y++ * 2 * spaceing - spaceing / 2f), 20));
+			}, "", Color.black, new Vector2f(-100, y++ * 2 * spacing - spacing / 2f), 1));
 		}
 		if (c instanceof IResizable) {
 			resizable = (IResizable) c;
@@ -714,7 +730,7 @@ public class Edit extends Game {
 						((TextField) source).setContent(dataToString(resizable.getDimensions().x, 2));
 					}
 				}
-			}, "", Color.black, new Vector2f(-150, y * 2 * spaceing - spaceing / 2f), 20),
+			}, "", Color.black, new Vector2f(-150, y * 2 * spacing - spacing / 2f), 1),
 					new TextField(new ChangeAction() {
 						@Override
 						public void onChange(Object source) {
@@ -733,13 +749,13 @@ public class Edit extends Game {
 								((TextField) source).setContent(dataToString(resizable.getDimensions().y, 2));
 							}
 						}
-					}, "", Color.black, new Vector2f(-75, y++ * 2 * spaceing - spaceing / 2f), 20));
+					}, "", Color.black, new Vector2f(-75, y++ * 2 * spacing - spacing / 2f), 1));
 		}
 		if (c instanceof ColoredGlass)
 
 		{
 			coloredGlass = (ColoredGlass) c;
-			addToInspector(new Text(getLanguage().strength, Color.black, new Vector2f(-100, y++ * 2 * spaceing)),
+			addToInspector(new Text(getLanguage().strength, Color.black, new Vector2f(-100, y++ * 2 * spacing)),
 					new TextField(new ChangeAction() {
 						@Override
 						public void onChange(Object source) {
@@ -758,13 +774,13 @@ public class Edit extends Game {
 								((TextField) source).setContent(dataToString(coloredGlass.getStrength(), 2));
 							}
 						}
-					}, "", Color.black, new Vector2f(-100, y++ * 2 * spaceing - spaceing / 2f), 20));
+					}, "", Color.black, new Vector2f(-100, y++ * 2 * spacing - spacing / 2f), 1));
 		}
 		if (c instanceof IColorable) {
 			colorable = (IColorable) c;
-			addToInspector(new Text(getLanguage().colors, Color.black, new Vector2f(-100, y++ * 2 * spaceing)));
+			addToInspector(new Text(getLanguage().colors, Color.black, new Vector2f(-100, y++ * 2 * spacing)));
 
-			float yPos = y++ * 2 * spaceing - spaceing / 2f + 10;
+			float yPos = y++ * 2 * spacing - spacing / 2f + 10;
 			float iteration = 0;
 			for (Color color : Colors.colors) {
 				iteration++;
@@ -773,7 +789,7 @@ public class Edit extends Game {
 				createColorField(new Vector2f(xPos, yPos), color);
 				if (xPos >= -45) {
 					iteration = 0;
-					yPos = y++ * 2 * spaceing - spaceing / 2f + 10;
+					yPos = y++ * 2 * spacing - spacing / 2f + 10;
 
 				}
 			}
@@ -786,19 +802,19 @@ public class Edit extends Game {
 				public void onRelease(Object source) {
 					isLinking = true;
 				}
-			}, getLanguage().link, Color.black, new Vector2f(-150, y * 2 * spaceing), 0.5f));
+			}, getLanguage().link, Color.black, new Vector2f(-150, y * 2 * spacing), 0.5f));
 			addToInspector(new Button(new ButtonAction() {
 				@Override
 				public void onRelease(Object source) {
 					isUnlinking = true;
 				}
-			}, getLanguage().unlink, Color.black, new Vector2f(-50, y++ * 2 * spaceing), 0.5f));
+			}, getLanguage().unlink, Color.black, new Vector2f(-50, y++ * 2 * spacing), 0.5f));
 		}
 
 		addToInspector(
 
-				new Text(getLanguage().movable, Color.black, new Vector2f(-50, y * 2 * spaceing)),
-				new Text(getLanguage().rotatable, Color.black, new Vector2f(-150, y++ * 2 * spaceing)),
+				new Text(getLanguage().movable, Color.black, new Vector2f(-50, y * 2 * spacing)),
+				new Text(getLanguage().rotatable, Color.black, new Vector2f(-150, y++ * 2 * spacing)),
 
 				new CheckBox(b -> {
 					c.setMovable(b);
@@ -807,7 +823,7 @@ public class Edit extends Game {
 					if (!inInspector) {
 						((CheckBox) source).setChecked(c.isMovable());
 					}
-				}, new Vector2f(-50, y * 2 * spaceing - spaceing / 2f), 25),
+				}, new Vector2f(-50, y * 2 * spacing - spacing / 2f), 25),
 
 				new CheckBox(b -> {
 					c.setRotatable(b);
@@ -816,7 +832,7 @@ public class Edit extends Game {
 					if (!inInspector) {
 						((CheckBox) source).setChecked(c.isRotatable());
 					}
-				}, new Vector2f(-150, y++ * 2 * spaceing - spaceing / 2f), 25),
+				}, new Vector2f(-150, y++ * 2 * spacing - spacing / 2f), 25),
 
 				new Button(deleteAction = new ButtonAction() {
 					@Override
@@ -826,14 +842,13 @@ public class Edit extends Game {
 							remove(lastGlow);
 						}
 					}
-				}, getLanguage().delete, Color.black, new Vector2f(-100, ++y * 2 * spaceing - spaceing / 2f)));
+				}, getLanguage().delete, Color.black, new Vector2f(-100, ++y * 2 * spacing - spacing / 2f)));
 	}
 
 	private void setInactive(IControllable c) {
+		System.out.println(c);
 		if (c instanceof IActivatable && !((IActivatable) c).isActivated()) {
-			((IActivatable) c).setInActiveState(
-			// (IActivatable) c.clone()
-			);
+			((IActivatable) c).setInActiveState();
 		}
 	}
 
@@ -871,9 +886,8 @@ public class Edit extends Game {
 		return dataToString(n, 0);
 	}
 
-	// @Override
-	// public int getID() {
-	// return App.edit;
-	// }
+	@Override
+	public void win() {
 
+	}
 }

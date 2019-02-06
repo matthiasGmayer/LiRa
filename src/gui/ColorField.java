@@ -6,12 +6,12 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.geom.Vector2f;
 
-import entites.IColorable;
-import entites.IUpdatable;
+import entities.IColorable;
+import entities.IUpdatable;
 import renderer.Camera;
 import renderer.IRenderable;
 import settings.Actions;
-import settings.Controlls;
+import settings.Controls;
 import tools.Tools;
 import util.SelectAction;
 import util.UpdateAction;
@@ -52,7 +52,7 @@ public class ColorField implements IRenderable, IUpdatable, IColorable {
 		boolean onButton = Tools.isPointInRectangle(v, position, getApparentSize(IRenderable.Direction.width),
 				getApparentSize(IRenderable.Direction.height), 0);
 
-		if (Actions.is(Controlls.leftMouse)) {
+		if (Actions.is(Controls.leftMouse)) {
 			if (onButton)
 				if (!pressed && !mousePressed) {
 					pressed = true;

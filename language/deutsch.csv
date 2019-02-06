@@ -1,4 +1,4 @@
-languageName, deutsch
+languageName, Deutsch
 play, Spielen
 levelEditor, Level Bearbeiter 
 settings, Einstellungen
@@ -29,3 +29,13 @@ override, Überschreiben
 position, Position
 rotation, Rotation
 size, Größe
+cameraLeft, Kamera Links
+cameraRight, Kamera Rechts
+cameraUp, Kamera Hoch
+cameraDown, Kamera Runter
+camera, Kamera
+limitMovement, Bewegung Limitieren
+copy, Objekt Kopieren
+reset, Level Zurücksetzen
+won, Du Hast Gewonnen!
+strength, Stärke

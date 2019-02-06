@@ -41,7 +41,6 @@ public class Parser {
 	public static String toString(Boolean b) {
 		if (b == null)
 			return null;
-		System.out.println(b);
 		if (b)
 			return "t";
 		return "f";

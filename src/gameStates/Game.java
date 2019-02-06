@@ -8,24 +8,28 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.state.StateBasedGame;
 
+import connection.Connections;
 import effects.Glow;
-import entites.IActivatable;
-import entites.IControllable;
-import entites.ILoadable;
-import entites.IPositionable;
+import entities.IActivatable;
+import entities.IControllable;
+import entities.IPositionable;
 import gui.Button;
 import gui.Panel;
+import gui.Picture;
+import gui.Text;
+import levels.ILoadable;
 import levels.Level;
+import levels.LevelProgress;
 import light.Frame;
+import renderer.Camera;
 import renderer.IRenderable;
 import renderer.IRenderable.Direction;
 import settings.Actions;
-import settings.Controlls;
+import settings.Controls;
 import settings.Graphic;
 import tools.Lists;
 import tools.Loader;
@@ -37,6 +41,11 @@ public class Game extends BasicState {
 	Image arrow = Loader.loadImage("!arrow");
 	Frame screen = new Frame(Graphic.width / 2, Graphic.height / 2, Graphic.width, Graphic.height);
 	Panel p;
+	Panel winP;
+	Button[] rate = new Button[5];
+	Integer levelId = 0;
+	int myI;
+	Text rateText;
 
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		if (!(this instanceof Edit))
@@ -44,7 +53,7 @@ public class Game extends BasicState {
 		create(new Frame(-50000, -50000, 100000, 100000));
 
 		Button b;
-		create(p = new Panel(
+		p = create(new Panel(rateText = new Text("Rate:", new Vector2f(250, -13)),
 
 				b = new Button(new ButtonAction() {
 					@Override
@@ -52,25 +61,74 @@ public class Game extends BasicState {
 						StateHandler.enterState(sbg, Menu.class);
 						ButtonAction.super.onRelease(source);
 					}
-				}, getLanguage().menu, Color.black, new Vector2f(0, 0), 0.3f)));
-		b.setPosition(new Vector2f(0, b.getApparentSize(Direction.height) / 2 - Graphic.height / 2));
+				}, getLanguage().menu, Color.black, new Vector2f(0, 0), 0.5f)
+		));
+		p.setPosition(new Vector2f(0, b.getApparentSize(Direction.height) / 2 - Graphic.height / 2));
+
+		for (int i = 0; i < rate.length; i++) {
+			myI = i;
+			rate[i] = new Button(new ButtonAction() {
+				int myi = myI;
+
+				@Override
+				public void onRelease(Object source) {
+					Connections.rateLevel(levelId, myi + 1);
+					ButtonAction.super.onRelease(source);
+				}
+			}, Integer.toString(i + 1), Color.black, new Vector2f(100 + 50 * (i + 1), 12), 0.25f);
+		}
+
+		p.add(rate);
+
+		winP = create(new Panel(
+
+				new Text(getLanguage().won, new Vector2f())
+
+		));
 
 		super.init(gc, sbg);
 	}
 
 	Level level;
 
-	public void setLevel(Level l) {
+	public void setLevel(Level l, int levelId) {
 		level = l;
+		this.levelId = levelId;
 	}
+
+	public void setLevel(Level l) {
+		setLevel(l, 0);
+	}
+
+	Panel instructions;
 
 	@Override
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
 		if (level != null) {
 			clear();
 			create(level);
+			if (level.getName().contains("1")) {
+				instructions = create(new Panel(new Picture(new Vector2f(0, Graphic.height / 3),
+						Loader.loadImage("!Menu/GraphicalInstructions"))));
+			} else
+				remove(instructions);
 		}
+		won = false;
+		if (level != null && "n".equals(level.getPath()) && Connections.loggedIn()) {
+			rateText.setPosition(new Vector2f(250, -13));
+			for (int i = 0; i < rate.length; i++) {
+				rate[i].setPosition(new Vector2f(100 + 50 * (i + 1), 12));
+			}
+		} else {
+			rateText.setPosition(new Vector2f(250, -12343));
+			for (int i = 0; i < rate.length; i++) {
+				rate[i].setPosition(new Vector2f(100 + 50 * (i + 1), -1000));
+			}
+		}
+		winP.setPosition(new Vector2f(-Graphic.width / 4, -Graphic.height));
+		winP.setTargetPosition(new Vector2f(-Graphic.width / 4, -Graphic.height));
 		changed();
+		Actions.setPressed(-3, false);
 		super.enter(container, game);
 	}
 
@@ -89,7 +147,8 @@ public class Game extends BasicState {
 	}
 
 	public synchronized void clear() {
-		Lists.forEach(gameObjects,o -> idList.contains(o),o->remove(o));
+		Lists.forEach(gameObjects, o -> o instanceof ILoadable, o -> remove(o));
+		remove(idList);
 	}
 
 	public Integer getId(Object object) {
@@ -107,14 +166,16 @@ public class Game extends BasicState {
 	public void renderObjects(GameContainer gc, StateBasedGame sbg, Graphics g) {
 
 		Object selected = getSelected();
+		boolean done = selected == null;
 		g.setBackground(Color.black);
 		for (Object o : gameObjects) {
 			if (o instanceof IRenderable && o != selected) {
+				if (!done && !(o instanceof IControllable) && !(o instanceof Glow) && !(o instanceof Camera)) {
+					((IRenderable) selected).render(camera, g);
+					done = true;
+				}
 				((IRenderable) o).render(camera, g);
 			}
-		}
-		if (selected instanceof IRenderable) {
-			((IRenderable) selected).render(camera, g);
 		}
 
 		// draw arrow
@@ -146,9 +207,9 @@ public class Game extends BasicState {
 		super.update(gc, sbg, delta);
 
 		IControllable c = getSelected();
-		if (c != null && !Actions.isPressed(Input.KEY_LCONTROL) && !Actions.isPressed(Input.KEY_LALT)) {
+		if (c != null && !Actions.is(Controls.limitMovement)) {
 			// drag object
-			if (movingSetup && Actions.is(Controlls.leftMouse)) {
+			if (movingSetup && Actions.is(Controls.leftMouse)) {
 				c.setPosition(camera.screenToWorldPoint(Actions.mousePosition.copy().add(moveDif)));
 				setInActiveState(c);
 			}
@@ -159,15 +220,16 @@ public class Game extends BasicState {
 							Actions.mousePosition);
 				}
 			}
-			if (!Actions.is(Controlls.leftMouse)) {
+			if (!Actions.is(Controls.leftMouse)) {
 				movingSetup = false;
 			} else {
 				changed();
 			}
 			// turn object
-			if (turnSetup && Actions.is(Controlls.rightMouse)) {
-				c.setRotation((float) Tools.getAngle(camera.screenToWorldPoint(Actions.mousePosition), c.getPosition())
-						+ turnDif);
+			if (turnSetup && Actions.is(Controls.rightMouse)) {
+				c.setRotation(
+						(float) ((((Tools.getAngle(camera.screenToWorldPoint(Actions.mousePosition), c.getPosition())
+								+ turnDif) % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI)));
 				setInActiveState(c);
 			}
 			if ((c.isRotatable() || StateHandler.isInEdit()) && !turnSetup) {
@@ -175,7 +237,7 @@ public class Game extends BasicState {
 				turnDif = c.getRotation()
 						- (float) Tools.getAngle(camera.screenToWorldPoint(Actions.mousePosition), c.getPosition());
 			}
-			if (!Actions.is(Controlls.rightMouse)) {
+			if (!Actions.is(Controls.rightMouse)) {
 				turnSetup = false;
 			} else {
 				changed();
@@ -317,8 +379,14 @@ public class Game extends BasicState {
 		return lastSelected;
 	}
 
+	boolean won;
+
 	public void win() {
-		System.out.println("WON!");
+		if (!won) {
+			LevelProgress.setLevel(level, true);
+			won = true;
+			winP.setTargetPosition(new Vector2f(-Graphic.width / 4, -Graphic.width / 3.5f));
+		}
 	}
 
 }

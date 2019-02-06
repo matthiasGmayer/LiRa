@@ -12,8 +12,8 @@ import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import entites.IControllable;
-import entites.IUpdatable;
+import entities.IControllable;
+import entities.IUpdatable;
 import main.App;
 import renderer.Camera;
 import renderer.IRenderable;
@@ -31,8 +31,6 @@ public abstract class BasicState extends BasicGameState {
 	Camera camera;
 
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-
-		System.out.println(getClass() + " inited");
 		camera = create(new Camera());
 	}
 
@@ -150,7 +148,7 @@ public abstract class BasicState extends BasicGameState {
 	protected final Language getLanguage() {
 		return App.currentLanguage;
 	}
-	
+
 	protected final void enterState(StateBasedGame sbg, Class<? extends BasicState> c) {
 		StateHandler.enterState(sbg, c);
 	}
